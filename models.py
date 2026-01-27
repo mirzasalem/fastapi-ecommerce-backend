@@ -4,11 +4,11 @@ from datetime import datetime
 from tortoise.contrib.pydantic import pydantic_model_creator
 class User(Model):
     id = fields.IntField(pk = True, index = True)
-    username = fields.CharField(max_length = 20, null =False, unique =True)
-    email = fields.CharField(max_length = 20, null =False, unique =True)
-    password = fields.CharField(max_length = 20, null =False, unique =True)
+    username = fields.CharField(max_length = 100, null =False, unique =True)
+    email = fields.CharField(max_length = 100, null =False, unique =True)
+    password = fields.CharField(max_length = 122, null =False, unique =True)
     is_verified = fields.BooleanField(default =False)
-    join_data = fields.DatetimeField(default = datetime.utcnow)
+    join_date = fields.DatetimeField(default = datetime.utcnow)
     
 class Business(Model):
     id =  fields.IntField(pk = True, Index = True)
@@ -31,7 +31,7 @@ class Product(Model):
     business = fields.ForeignKeyField("models.Business", related_name= "products")
     
 user_pydantic = pydantic_model_creator(User, name = 'User', exclude = ("is_verified" ,))
-user_pydanticIn = pydantic_model_creator(User, name = "UserIn", exclude_readonly = True)
+user_pydanticIn = pydantic_model_creator(User, name = "UserIn", exclude_readonly = True, exclude = ("is_verified" ,"join_date"))
 user_pydanticOut = pydantic_model_creator(User, name = "UserOut",exclude = ("password", ))
 
 
