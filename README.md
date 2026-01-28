@@ -1,6 +1,6 @@
 # FastAPI E-Commerce Backend
 
-A **RESTful E-Commerce Backend API** built with **FastAPI**, designed to power online shopping platforms with essential backend features for products, users, authentication, and orders.
+A **RESTful E-Commerce Backend API** built with **FastAPI**, designed to power online shopping platforms with essential backend features for products, users, authentication, orders, and email verification.
 
 ⚠️ This project is currently a **work in progress**. Features are under development, so please check back for updates.
 
@@ -13,6 +13,9 @@ This repository provides a starter backend for e-commerce applications using mod
 - **User Authentication & Authorization** (JWT-based login)
 - **Product Management** — CRUD operations for products
 - **Order Management** — Place and track orders via API
+- **Email Verification** — Send verification emails to users using FastAPI-Mail
+- **Background Tasks** — Handle tasks asynchronously (e.g., sending emails)
+- **File Uploads** — Support for uploading files with `UploadFile` and `File`
 - **Database Integration** via ORM (Tortoise ORM / SQLAlchemy)
 - **API Documentation** — Auto-generated docs at `/docs` (Swagger UI)
 - **Environment-based Configuration** using `.env`
@@ -25,6 +28,9 @@ This repository provides a starter backend for e-commerce applications using mod
 - FastAPI — Modern, high-performance web framework
 - Pydantic — Data validation and settings management
 - Tortoise ORM (or SQLAlchemy) — Database ORM
+- FastAPI-Mail — Sending email notifications
+- JWT — JSON Web Tokens for authentication
+- dotenv — Environment variable management
 - SQLite (default) / Configurable to other SQL databases
 
 ---
@@ -51,7 +57,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. Create a `.env` file based on `.env.example` and configure your settings (DB URL, secret keys, etc.).
+4. Create a `.env` file based on `.env.example` and configure your settings (DB URL, email credentials, secret keys, etc.).
 
 5. Run the FastAPI server:
 
@@ -68,6 +74,8 @@ uvicorn main:app --reload
 - Use `/users` endpoint to register and login users.
 - Use `/products` to create, read, update, and delete products.
 - Use `/orders` to place and manage orders.
+- Use email verification endpoints to verify user accounts.
+- Upload files through endpoints supporting `UploadFile` and `File`.
 
 > Extend the API to integrate payment gateways, inventory management, and more.
 
@@ -75,7 +83,7 @@ uvicorn main:app --reload
 
 ## 🔒 Security
 
-- `.env` file contains sensitive information like DB credentials and secret keys.
+- `.env` file contains sensitive information like DB credentials, email credentials, and secret keys.
 - `.gitignore` ensures `.env` and `venv/` are never pushed to GitHub.
 
 ---
@@ -103,4 +111,4 @@ This backend serves as a **foundation** for building full-featured e-commerce ap
 - Payment gateway integration
 - Inventory and warehouse management
 - Admin dashboards
-- Advanced analytics# fastapi-ecommerce-backend
+- Advanced analytics
