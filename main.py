@@ -9,15 +9,23 @@ from fastapi.templating import Jinja2Templates
 from tortoise.signals import post_save
 from typing import List, Optional , Type
 from tortoise import BaseDBAsyncClient
-from fastapi.exceptions import HTTPException
+
 from fastapi import status
 from email_service import * 
-
-
+# for upload images
+from fastapi import File, UploadFile
+import secrets
+from fastapi.staticfiles import StaticFiles
+from PIL import Image
 #response classess
 from fastapi.responses import HTMLResponse
-
+#Static file config setup
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name = "static")
+
+
+
+
 oath2_scheme = OAuth2PasswordBearer(tokenUrl="token")  
 @app.post('/token')
 async def generate_token(request: OAuth2PasswordRequestForm = Depends()):
@@ -63,6 +71,50 @@ async def create_business(
 def index():
     return {"Message": "Hello World"}
     
+@app.post("/uploadfile/profle")
+async def create_upload_files(file: UploadFile = File(...), user: user_pydantic = Depends(get_current_user)):
+    FILEPATH = "./static/images/"
+    filename= file.filename
+    extension = filename.split(".")[1]
+    
+    if extension not in ["png", "jpg"]:
+        return {"status": "Error", "Detail": "File Extension not supported"}
+    token_name = secrets.token_hex(10)+ "." + extension
+    
+    generated_name = FILEPATH +token_name
+    file_content = await file.read()
+    
+    with open(generated_name, "wb") as file:
+        file.write(file_content)
+
+
+
+    #pillow
+    img = Image.open(generated_name)
+    img = img.resize(size= (200,200))
+    img.save(generated_name)
+    file.close()
+    
+    business = await Business.get(owner = user)
+    owner = await business.owner
+    
+    if owner == user:
+        business.logo = token_name
+        await business.save()
+        
+    else:
+        raise HTTPException(
+            status_code= status.HTTP_401_UNAUTHORIZED,
+            detail= "Not authenticated",
+            headers={"WWW.Authenticate": "Bearer"}
+        )
+    file_location = "localhost:8000"+ generated_name[1:]
+    return {"status": "OK", "msg": "Uploaded", "file place" : file_location}
+
+
+
+
+
 
 
 @app.post("/registration")
@@ -114,3 +166,43 @@ async def email_verification(request: Request, token: str):
         
         
         
+@app.post("/uploadfile/product/{id}")
+async def create_upload_file(id: int, file: UploadFile = File(...), user: user_pydantic = Depends(get_current_user)):
+    FILEPATH = "./static/images/"
+    filename= file.filename
+    extension = filename.split(".")[1]
+    
+    if extension not in ["png", "jpg"]:
+        return {"status": "Error", "Detail": "File Extension not supported"}
+    token_name = secrets.token_hex(10)+ "." + extension
+    
+    generated_name = FILEPATH +token_name
+    file_content = await file.read()
+    
+    with open(generated_name, "wb") as file:
+        file.write(file_content)
+
+
+
+    #pillow
+    img = Image.open(generated_name)
+    img = img.resize(size= (200,200))
+    img.save(generated_name)
+    file.close()
+    
+    product = await Product.get(id = id)
+    business = await product.business
+    owner = await business.owner
+    
+    if owner == user:
+        product.product_image = token_name
+        await product.save()
+    else:
+        raise HTTPException(
+            status_code = status.HTTP_401_UNAUTHORIZED,
+            detail = "Invalid Token o Expired",
+            headers= {"Authentication": "Failed"}
+        )
+    file_location = "localhost:8000"+ generated_name[1:]
+    return {"status": "OK", "msg": "Uploaded", "file place" : file_location}
+    
