@@ -1,114 +1,179 @@
-# FastAPI E-Commerce Backend
-
-A **RESTful E-Commerce Backend API** built with **FastAPI**, designed to power online shopping platforms with essential backend features for products, users, authentication, orders, and email verification.
 
 ⚠️ This project is currently a **work in progress**. Features are under development, so please check back for updates.
+# FastAPI E-Commerce Backend
 
-This repository provides a starter backend for e-commerce applications using modern Python backend development patterns.
+A **complete E-Commerce Backend API** built using **FastAPI**, implementing real-world backend features including authentication, email verification, business management, product CRUD operations, and image upload handling.
 
----
-
-## 🚀 Key Features
-
-- **User Authentication & Authorization** (JWT-based login)
-- **Product Management** — CRUD operations for products
-- **Order Management** — Place and track orders via API
-- **Email Verification** — Send verification emails to users using FastAPI-Mail
-- **Background Tasks** — Handle tasks asynchronously (e.g., sending emails)
-- **File Uploads** — Support for uploading files with `UploadFile` and `File`
-- **Database Integration** via ORM (Tortoise ORM / SQLAlchemy)
-- **API Documentation** — Auto-generated docs at `/docs` (Swagger UI)
-- **Environment-based Configuration** using `.env`
+⚠️ **Project Status:** Currently **under development**. Features are being added.
 
 ---
 
-## 🧰 Technologies Used
+## Features
 
+### Authentication & Authorization
+- JWT-based authentication
+- OAuth2 password flow
+- Access token generation
+- Protected API routes
+
+### User Management
+- User registration with secure password hashing
+- Email verification
+- Verified/unverified user handling
+- Login and user profile retrieval
+
+### Email System
+- FastAPI-Mail integration
+- HTML verification email template
+- Token-based verification links
+
+### Business Management
+- Automatic business creation after user registration
+- Update business profile
+- Business ownership verification
+- Upload business logo
+
+### Product Management
+- Create, read, update, delete products
+- Automatic discount percentage calculation
+- Product image upload and resizing
+- Owner-based authorization
+
+### File Uploads & Images
+- Profile and product image upload
+- Image format validation (png, jpg)
+- Image resizing using Pillow
+- Static file serving (/static)
+
+### Backend Architecture
+- Async FastAPI application
+- Tortoise ORM + SQLite database
+- Pydantic schemas for validation
+- Environment variable configuration (.env)
+- Jinja2 template rendering
+- Background tasks for async operations
+
+---
+
+## Technologies Used
 - Python
-- FastAPI — Modern, high-performance web framework
-- Pydantic — Data validation and settings management
-- Tortoise ORM (or SQLAlchemy) — Database ORM
-- FastAPI-Mail — Sending email notifications
-- JWT — JSON Web Tokens for authentication
-- dotenv — Environment variable management
-- SQLite (default) / Configurable to other SQL databases
+- FastAPI
+- Tortoise ORM
+- SQLite
+- Pydantic
+- JWT (PyJWT)
+- OAuth2
+- FastAPI-Mail
+- Jinja2
+- Pillow (PIL)
+- python-dotenv
 
 ---
 
-## 📦 Installation
+## Project Structure
+```
+fastapi-ecommerce-backend/
+├── main.py
+├── models.py
+├── authontication.py
+├── email_service.py
+├── templates/
+│   └── verification.html
+├── static/
+│   └── images/
+├── database.sqlite3
+├── .env.example
+├── requirements.txt
+└── README.md
+```
 
-1. Clone the repository:
+---
 
+## Installation
+
+1. Clone the repository
 ```bash
 git clone https://github.com/mirzasalem/fastapi-ecommerce-backend.git
 cd fastapi-ecommerce-backend
 ```
 
-2. Create a virtual environment:
-
+2. Create virtual environment
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # Windows: venv\Scripts\activate
 ```
 
-3. Install dependencies:
-
+3. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Create a `.env` file based on `.env.example` and configure your settings (DB URL, email credentials, secret keys, etc.).
+4. Create `.env` file
+```env
+EMAIL=your_email@gmail.com
+PASS=your_email_app_password
+SECRET=your_jwt_secret
+```
 
-5. Run the FastAPI server:
-
+5. Run the server
 ```bash
 uvicorn main:app --reload
 ```
 
-6. Open API docs at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+---
+
+## API Documentation
+- Swagger UI: http://127.0.0.1:8000/docs
+- ReDoc: http://127.0.0.1:8000/redoc
 
 ---
 
-## 📝 Usage
+## API Overview
+### Authentication
+- `POST /registration`
+- `POST /token`
+- `POST /user/me`
 
-- Use `/users` endpoint to register and login users.
-- Use `/products` to create, read, update, and delete products.
-- Use `/orders` to place and manage orders.
-- Use email verification endpoints to verify user accounts.
-- Upload files through endpoints supporting `UploadFile` and `File`.
+### Email Verification
+- `GET /verification?token=...`
 
-> Extend the API to integrate payment gateways, inventory management, and more.
+### Business
+- `PUT /business/{id}`
 
----
+### Product
+- `POST /product/create`
+- `GET /product`
+- `GET /product/{id}`
+- `PUT /product/{id}`
+- `DELETE /product/{id}`
 
-## 🔒 Security
-
-- `.env` file contains sensitive information like DB credentials, email credentials, and secret keys.
-- `.gitignore` ensures `.env` and `venv/` are never pushed to GitHub.
-
----
-
-## ⭐ Contributing
-
-1. Fork the repository  
-2. Create a new branch: `git checkout -b feature-name`  
-3. Commit your changes: `git commit -m "Add feature"`  
-4. Push to the branch: `git push origin feature-name`  
-5. Create a pull request
+### File Upload
+- `POST /uploadfile/profile`
+- `POST /uploadfile/product/{id}`
 
 ---
 
-## 📜 License
-
-This project is licensed under the MIT License.
+## Security
+- JWT-based authentication
+- Owner-based authorization
+- Environment variable protection
+- File extension validation
 
 ---
 
-## 💡 Note
-
-This backend serves as a **foundation** for building full-featured e-commerce applications. Easily extendable to include:
-
+## Future Improvements
+- Shopping cart system
+- Order management
 - Payment gateway integration
-- Inventory and warehouse management
-- Admin dashboards
-- Advanced analytics
+- Admin dashboard
+- Role-based access control
+- Docker support
+- PostgreSQL database support
+
+---
+
+## Author
+**Mirza Salem**  
+GitHub: https://github.com/mirzasalem
+
+⭐ If you like this project, please give it a star! Thanks
