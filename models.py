@@ -29,6 +29,7 @@ class Product(Model):
     offer_expiration_data = fields.DateField(default = datetime.utcnow)
     product_image = fields.CharField(max_length = 200, null = False , default = "productdefault.jpg")
     business = fields.ForeignKeyField("models.Business", related_name= "products")
+    date_published = fields.DatetimeField(default = datetime.utcnow)
     
 user_pydantic = pydantic_model_creator(User, name = 'User', exclude = ("is_verified" ,))
 user_pydanticIn = pydantic_model_creator(User, name = "UserIn", exclude_readonly = True, exclude = ("is_verified" ,"join_date"))
@@ -36,8 +37,8 @@ user_pydanticOut = pydantic_model_creator(User, name = "UserOut",exclude = ("pas
 
 
 business_pydantic = pydantic_model_creator(Business, name = "Business")
-business_pydanticIn = pydantic_model_creator(Business, name = "BusinessIn", exclude_readonly=True)
+business_pydanticIn = pydantic_model_creator(Business, name = "BusinessIn", exclude_readonly=True, exclude= ("id", "logo"))
 # business_pydanticOut = pydantic_model_creator(Business, name = "BusinessOut")
 
 Product_pydantic = pydantic_model_creator(Product, name = "Product")
-Product_pydanticIn = pydantic_model_creator(Product, name = "ProductIn", exclude= ("percentage_discount", "id"))
+Product_pydanticIn = pydantic_model_creator(Product, name = "ProductIn", exclude= ("percentage_discount", "id", "product_image", "date_published"))

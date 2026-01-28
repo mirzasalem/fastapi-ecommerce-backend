@@ -138,13 +138,16 @@ register_tortoise(
 @app.post("/user/me")
 async def user_login(user: user_pydanticIn =Depends(get_current_user)):
     business = await Business.get(owner = user)
+    logo = business.logo
+    logoplace = "localhost:8000/static/images/" + logo
     return{
         "status": "ok",
         "data": {
             "username": user.username,
             "email": user.email,
             "verified": user.is_verified,
-            "joined_date": user.join_date.strftime("%d %d %Y")
+            "joined_date": user.join_date.strftime("%d %d %Y"),
+            "business_logo": logoplace
         }
     }
 
@@ -205,4 +208,123 @@ async def create_upload_file(id: int, file: UploadFile = File(...), user: user_p
         )
     file_location = "localhost:8000"+ generated_name[1:]
     return {"status": "OK", "msg": "Uploaded", "file place" : file_location}
+
+
+#CRUD for products
+@app.post("/product/create")
+async def create_product(product: Product_pydanticIn, user: user_pydantic = Depends(get_current_user)):
+    product_data = product.dict(exclude_unset=True)
+
+    # Convert prices to float
+    product_data["original_price"] = float(product_data["original_price"])
+    product_data["new_price"] = float(product_data["new_price"])
+
+    if product_data["original_price"] <= 0:
+        raise HTTPException(status_code=400, detail="Original price must be greater than 0")
+
+    # Calculate discount
+    product_data["percentage_discount"] = (
+        (product_data["original_price"] - product_data["new_price"]) / product_data["original_price"]
+    ) * 100
+
+    # Get the business object for this user
+    business = await Business.get(owner=user)
+
+    # Create product
+    product_obj = await Product.create(**product_data, business=business)
+    product_obj_pydantic = await Product_pydantic.from_tortoise_orm(product_obj)
+
+    # Convert Decimal to float for JSON
+    product_dict = product_obj_pydantic.dict()
+    product_dict["original_price"] = float(product_dict["original_price"])
+    product_dict["new_price"] = float(product_dict["new_price"])
+
+    return {"status": "ok", "data": product_dict}
+
+@app.get("/product")
+async def get_product():
+    response = await Product_pydantic.from_queryset(Product.all())
+    return {"status": "ok", "data": response}
+
+
+@app.get("/product/{id}")
+async def get_product(id: int):
+    product = await Product.get(id = id)
+    business = await product.business
+    owner = await business.owner
+    response = await Product_pydantic.from_queryset_single(Product.get(id = id))
     
+    return{
+        "status": "ok", "data": {
+            "product_details": response,
+            "business_details": {
+                "name": business.business_name,
+                "city": business.city,
+                "region": business.region,
+                "description"  : business.business_description,
+                "logo": business.logo,
+                "business_id": business.id,
+                "owner_id": owner.id,
+                "email": owner.email,
+                "join_date": owner.join_date.strftime("%b %d %Y")
+            }
+        }
+    }
+    
+    
+
+@app.put("/product/{id}")
+async def update_product(id: int , update_info : Product_pydanticIn, user: user_pydantic = Depends(get_current_user)):
+    product = await Product.get(id = id)
+    business = await product.business
+    owner = await business.owner
+    update_info = update_info.dict(exclude_unset = True)
+    if user == owner and update_info["original_price"] != 0:
+        update_info["percentage_discount"] = ((update_info["original_price"] - update_info["new_price"]) / update_info["original_price"]) * 100
+        product = await product.update_from_dict(update_info)
+        await product.save()
+        response = await Product_pydantic.from_tortoise_orm(product)
+        return {"status": "ok" , "data": response}
+    else:
+        raise HTTPException(
+            status_code = status.HTTP_401_UNAUTHORIZED,
+            detail = "UNAUTHORIZED to update this",
+            headers= {"Authentication": "Failed"}
+        )
+
+@app.put("/business/{id}")
+async def update_business(id: int , update_business : business_pydanticIn, user: user_pydantic = Depends(get_current_user)):
+    update_business = update_business.dict()
+    business = await Business.get(id = id)
+    business_owner = await business.owner
+    
+    # update_info = update_info.dict(exclude_unset = True)
+    if user == business_owner:
+        await business.update_from_dict(update_business)
+        await business.save()
+        response = await business_pydantic.from_tortoise_orm(business)
+        return {"status": "ok" , "data": response}
+    else:
+        raise HTTPException(
+            status_code = status.HTTP_401_UNAUTHORIZED,
+            detail = "UNAUTHORIZED to update this",
+            headers= {"Authentication": "Failed"}
+        )
+
+    
+@app.delete("/product/{id}")
+async def delete_product(id: int , user: user_pydantic = Depends(get_current_user)):
+    product = await Product.get(id = id)
+    business = await product.business
+    owner = await business.owner
+    
+    if user == owner:
+        
+        await product.delete()
+    else:
+        raise HTTPException(
+            status_code = status.HTTP_401_UNAUTHORIZED,
+            detail = "UNAUTHORIZED to delete this",
+            headers= {"Authentication": "Failed"}
+        )
+    return {"status": "ok"}
