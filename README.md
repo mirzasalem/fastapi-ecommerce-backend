@@ -3,8 +3,7 @@
 
 A **complete E-Commerce Backend API** built using **FastAPI**, implementing real-world backend features including authentication, email verification, business management, product CRUD operations, and image upload handling.
 
-⚠️ **Project Status:** Currently **under development**. Features are being added.
-
+⚠️ **Project Status:** Currently **under development**.
 ---
 
 ## Features
